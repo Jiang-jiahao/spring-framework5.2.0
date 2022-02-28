@@ -1,10 +1,10 @@
-package com.jjh;
+package com.jjh.xml;
 
-import com.jjh.customApplication.CustomizedApplication;
-import com.jjh.factoryBean.entity.User;
-import com.jjh.factoryBean.UserFactoryBean;
-import com.jjh.postProcessor.bean.Student;
-import com.jjh.service.IWelcomeService;
+import com.jjh.xml.customApplication.CustomizedApplication;
+import com.jjh.xml.factoryBean.entity.User;
+import com.jjh.xml.factoryBean.UserFactoryBean;
+import com.jjh.xml.postProcessor.bean.Student;
+import com.jjh.xml.service.IWelcomeService;
 import org.springframework.beans.factory.Aware;
 
 public class Entrance {

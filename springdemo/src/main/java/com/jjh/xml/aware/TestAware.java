@@ -1,4 +1,4 @@
-package com.jjh.aware;
+package com.jjh.xml.aware;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

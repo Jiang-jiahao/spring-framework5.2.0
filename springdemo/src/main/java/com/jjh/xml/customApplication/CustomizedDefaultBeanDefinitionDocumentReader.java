@@ -1,4 +1,4 @@
-package com.jjh.customApplication;
+package com.jjh.xml.customApplication;
 
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import org.w3c.dom.Element;

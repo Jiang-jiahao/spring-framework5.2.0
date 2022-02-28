@@ -1,4 +1,4 @@
-package com.jjh.postProcessor.bean;
+package com.jjh.xml.postProcessor.bean;
 
 //该实体没有在xml中配置bean
 public class Student {

@@ -1,6 +1,6 @@
-package com.jjh.factoryBean;
+package com.jjh.xml.factoryBean;
 
-import com.jjh.factoryBean.entity.User;
+import com.jjh.xml.factoryBean.entity.User;
 import org.springframework.beans.factory.FactoryBean;
 
 public class UserFactoryBean implements FactoryBean<User> {

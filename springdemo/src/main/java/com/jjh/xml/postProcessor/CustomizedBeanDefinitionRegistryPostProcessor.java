@@ -1,6 +1,6 @@
-package com.jjh.postProcessor;
+package com.jjh.xml.postProcessor;
 
-import com.jjh.postProcessor.bean.Student;
+import com.jjh.xml.postProcessor.bean.Student;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.*;

@@ -3,13 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="welcomeService" class="com.jjh.service.impl.WelcomeServiceImpl"/>
+	<bean id="welcomeService" class="com.jjh.xml.service.impl.WelcomeServiceImpl"/>
 	<!-- 使用beanFactory -->
-	<bean id="userFactoryBean" class="com.jjh.factoryBean.UserFactoryBean"/>
+	<bean id="userFactoryBean" class="com.jjh.xml.factoryBean.UserFactoryBean"/>
 
 	<!-- 处理器 -->
-	<bean id="customizedBeanDefinitionRegistryPostProcessor" class="com.jjh.postProcessor.CustomizedBeanDefinitionRegistryPostProcessor"/>
-	<bean id="customizedBeanPostProcessor" class="com.jjh.postProcessor.CustomizedBeanPostProcessor"/>
+	<bean id="customizedBeanDefinitionRegistryPostProcessor" class="com.jjh.xml.postProcessor.CustomizedBeanDefinitionRegistryPostProcessor"/>
+	<bean id="customizedBeanPostProcessor" class="com.jjh.xml.postProcessor.CustomizedBeanPostProcessor"/>
 	<!--Aware-->
-	<bean id="testAware" class="com.jjh.aware.TestAware"/>
+	<bean id="testAware" class="com.jjh.xml.aware.TestAware"/>
 </beans>

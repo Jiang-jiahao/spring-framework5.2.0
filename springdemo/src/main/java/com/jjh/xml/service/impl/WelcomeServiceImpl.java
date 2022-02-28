@@ -1,6 +1,6 @@
-package com.jjh.service.impl;
+package com.jjh.xml.service.impl;
 
-import com.jjh.service.IWelcomeService;
+import com.jjh.xml.service.IWelcomeService;
 
 public class WelcomeServiceImpl implements IWelcomeService {
 
