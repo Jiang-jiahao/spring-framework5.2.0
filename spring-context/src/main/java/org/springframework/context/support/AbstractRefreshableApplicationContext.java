@@ -122,17 +122,21 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 判断bean工厂是否存在，如果存在需要先销毁和关闭。否则会出现问题
 		if (hasBeanFactory()) {
+			// 销毁bean，根据bean的名称将bean工厂中的所有bean都从map中移除
 			destroyBeans();
+			// 关闭bean工厂，设置Bean工厂的序列化id为null，并将beanFactory的值赋值为null
 			closeBeanFactory();
 		}
 		try {
-			// 创建默认的bean工厂
+			// 重新创建bean工厂，默认返回的是Bean工厂类型是：DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 设置序列化ID，ID: class名称 + "@" + 对象的十六进制值
 			beanFactory.setSerializationId(getId());
-			// 配置自定义的工厂
+			// 定制bean工厂。作用：设置beanDefinition是否可以被覆盖以及设置bean在创建的时候是否允许循环引用
 			customizeBeanFactory(beanFactory);
-			// 加载beanDefinition
+			// 解析并加载bean的定义，默认是通过AbstractXmlApplicationContext类中的loadBeanDefinitions实现
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
@@ -226,9 +230,12 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see DefaultListableBeanFactory#setAllowEagerClassLoading
 	 */
 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+		// 是否允许覆盖BeanDefinition
 		if (this.allowBeanDefinitionOverriding != null) {
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
+		// 该属性在解决Spring Bean的循环依赖中会使用到
+		// 如果该属性的值为true，而且将要初始化的bean为单例，而且正在创建中，则在初始化属性前会把该bean的信息放入到singletonFactories中.
 		if (this.allowCircularReferences != null) {
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}
