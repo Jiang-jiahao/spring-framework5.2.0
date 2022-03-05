@@ -52,6 +52,7 @@ final class PostProcessorRegistrationDelegate {
 	}
 
 
+	//beanFactoryPostProcessors这个是addBeanFactoryPostProcessor()方法添加进来的
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 

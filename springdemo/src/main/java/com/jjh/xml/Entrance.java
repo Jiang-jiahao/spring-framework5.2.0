@@ -1,5 +1,6 @@
 package com.jjh.xml;
 
+import com.jjh.xml.beanFactoryPostProcessor.BeanDefinitionFacProcessor;
 import com.jjh.xml.customApplication.CustomizedApplication;
 import com.jjh.xml.factoryBean.entity.User;
 import com.jjh.xml.factoryBean.UserFactoryBean;
@@ -12,6 +13,13 @@ public class Entrance {
 		String path = "classpath:spring/spring-config.xml";
 		//自定义的Application，并且自定义DocumentReader
 		CustomizedApplication context = new CustomizedApplication(path);
+//		context.addApplicationListener();
+//		context.setAllowCircularReferences(true); //允许自动解决循环依赖，默认true
+//		context.setAllowBeanDefinitionOverriding(true); //允许beanDefinition覆盖，默认是true
+//		context.addBeanFactoryPostProcessor(new BeanDefinitionFacProcessor());
+//		context.addBeanFactoryPostProcessor(new BeanDefinitionFacProcessor());
+//		context.refresh();
+
 //		ApplicationContext context = new FileSystemXmlApplicationContext(path);
 //		ApplicationContext context = new ClassPathXmlApplicationContext(path);
 		IWelcomeService welcomeService = (IWelcomeService)context.getBean("welcomeService");

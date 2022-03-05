@@ -1,6 +1,7 @@
 package com.jjh.xml.customApplication;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
@@ -16,5 +17,11 @@ public class CustomizedApplication extends FileSystemXmlApplicationContext {
 	protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
 		reader.setDocumentReaderClass(CustomizedDefaultBeanDefinitionDocumentReader.class);
 		super.initBeanDefinitionReader(reader);
+	}
+
+	//在bean工厂做了一些初始化操作后，可以进行一些自定义的操作
+	@Override
+	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		super.postProcessBeanFactory(beanFactory);
 	}
 }

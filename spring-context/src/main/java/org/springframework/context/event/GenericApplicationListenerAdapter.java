@@ -36,6 +36,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
  * @since 3.0
  * @see org.springframework.context.ApplicationListener#onApplicationEvent
  */
+//适配器类
 public class GenericApplicationListenerAdapter implements GenericApplicationListener, SmartApplicationListener {
 
 	private static final Map<Class<?>, ResolvableType> eventTypeCache = new ConcurrentReferenceHashMap<>();
@@ -67,8 +68,10 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean supportsEventType(ResolvableType eventType) {
+		//如果是实现了SmartApplicationListener和GenericApplicationListener的监听器，则还需要执行supportsEventType方法判断是否支持该事件
 		if (this.delegate instanceof SmartApplicationListener) {
 			Class<? extends ApplicationEvent> eventClass = (Class<? extends ApplicationEvent>) eventType.resolve();
+			//判断是否是和监听器泛型定义的类型符合
 			return (eventClass != null && ((SmartApplicationListener) this.delegate).supportsEventType(eventClass));
 		}
 		else {

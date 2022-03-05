@@ -522,7 +522,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareRefresh();
 
 			/*
-			 * 2.获取Bean工厂，期间会做解析和加载bean定义的一些列工作.生成BeanDefinition对象.
+			 * 2.获取Bean工厂，期间会做解析和加载beanDefinition的一些列工作.生成BeanDefinition对象.
 			 * 此处返回的beanFactory的类型为：DefaultListableBeanFactory
 			 *
 			 * 自定义的xsd约束文件也会在该步骤进行解析，通过实现BeanDefinitionParser接口，并实现parse方法
@@ -931,7 +931,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 		else {
-			// 如果没有则创建一个类型为SimpleApplicationEventMulticaster事件监听器，
+			// 如果没有则创建一个类型为SimpleApplicationEventMulticaster事件广播器，
 			this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
 			// 将创建的事件广播器注册到容器中，在其他组件需要派发事件时，直接获取这个applicationEventMulticaster
 			beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
@@ -986,17 +986,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void registerListeners() {
 		// Register statically specified listeners first.
-		// 将注册的监听器绑定到广播器
+		// 将注册的监听器绑定到广播器（监听器是context.addApplicationListener()进来的）
 		for (ApplicationListener<?> listener : getApplicationListeners()) {
 			getApplicationEventMulticaster().addApplicationListener(listener);
 		}
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let post-processors apply to them!
-		// 根据类型获取listener监听器的名称
+		// 根据类型获取listener监听器的名称（这些监听器是配置读取进来的）
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
 		for (String listenerBeanName : listenerBeanNames) {
-			// 将事件监听器注册到广播器中，以后使用的时候，就可以直接通过事件广播器执行.
+			// 将事件监听器注册到广播器中，以后使用的时候（在获取的时候会实例化监听器），就可以直接通过事件广播器执行.
 			getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
 		}
 
