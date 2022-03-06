@@ -211,7 +211,7 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 			reader.setScopeMetadataResolver(scopeMetadataResolver);
 			scanner.setScopeMetadataResolver(scopeMetadataResolver);
 		}
-
+		//componentClasses是通过AnnotationConfigApplicationContext(Class<?>... componentClasses)设置进来的
 		if (!this.componentClasses.isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Registering component classes: [" +
@@ -219,7 +219,9 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 			}
 			reader.register(ClassUtils.toClassArray(this.componentClasses));
 		}
-
+		//basePackages是通过
+		//AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+		//ctx.scan("basePackages");
 		if (!this.basePackages.isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Scanning base packages: [" +

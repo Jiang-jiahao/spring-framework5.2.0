@@ -249,8 +249,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @return number of beans registered
 	 */
 	public int scan(String... basePackages) {
+		// 获取包扫描之前bean定义注册中心中的bean定义的数量，直接返回beanDefinitionMap的size
 		int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
 
+		// 执行扫描操作。
+		// 并将扫描到的beanDefinition注册到beanDefinition注册中心。即：beanDefinitionMap中。如果bean存在着别名，别名也会被注册到aliasMap中.
 		doScan(basePackages);
 
 		// Register annotation config processors, if necessary.
@@ -268,27 +271,35 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * but rather leaves this up to the caller.
 	 * @param basePackages the packages to check for annotated classes
 	 * @return set of beans registered if any for tooling registration purposes (never {@code null})
+	 * 从指定的包路径下扫描BeanDefinition信息，并将BeanDefinition信息注册到Bean定义注册中心.
 	 */
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
+			// 从类路径下扫描候选的BeanDefinition
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
+				// 解析@Scope注解，包括scopeName和proxyMode属性
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				// 通过名称生成器来生成beanName
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
+					// 设置当前的bean是否可以自动装配到其他的bean中，即：autoWireCandidate属性
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					// 处理通用注解。例如：@Lazy，@Primary，@Role，@DependsOn，@Description
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
 				if (checkCandidate(beanName, candidate)) {
+					// 创建包装类
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					// 注册bean定义到bean注册中心.
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}

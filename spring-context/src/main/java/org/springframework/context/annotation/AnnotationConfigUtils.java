@@ -234,7 +234,13 @@ public abstract class AnnotationConfigUtils {
 		processCommonDefinitionAnnotations(abd, abd.getMetadata());
 	}
 
+	/**
+	 * 解析公共注解上面的元数据信息并添加到bean定义中
+	 * @param abd bean定义
+	 * @param metadata 注解元数据信息
+	 */
 	static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
+		// 解析@Lazy注解
 		AnnotationAttributes lazy = attributesFor(metadata, Lazy.class);
 		if (lazy != null) {
 			abd.setLazyInit(lazy.getBoolean("value"));
@@ -246,18 +252,22 @@ public abstract class AnnotationConfigUtils {
 			}
 		}
 
+		// 解析@Primary注解
 		if (metadata.isAnnotated(Primary.class.getName())) {
 			abd.setPrimary(true);
 		}
+		// 解析@DependsOn注解
 		AnnotationAttributes dependsOn = attributesFor(metadata, DependsOn.class);
 		if (dependsOn != null) {
 			abd.setDependsOn(dependsOn.getStringArray("value"));
 		}
 
+		// 解析@Role注解
 		AnnotationAttributes role = attributesFor(metadata, Role.class);
 		if (role != null) {
 			abd.setRole(role.getNumber("value").intValue());
 		}
+		// 解析@Description注解
 		AnnotationAttributes description = attributesFor(metadata, Description.class);
 		if (description != null) {
 			abd.setDescription(description.getString("value"));

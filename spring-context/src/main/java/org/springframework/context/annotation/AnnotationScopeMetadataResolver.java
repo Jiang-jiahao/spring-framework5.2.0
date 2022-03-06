@@ -76,6 +76,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
 
 	@Override
 	public ScopeMetadata resolveScopeMetadata(BeanDefinition definition) {
+		// ScopeMetadata中会定义bean的默认作用域[默认为singleton]和作用域的模式[默认为no]
 		ScopeMetadata metadata = new ScopeMetadata();
 		if (definition instanceof AnnotatedBeanDefinition) {
 			AnnotatedBeanDefinition annDef = (AnnotatedBeanDefinition) definition;

@@ -133,6 +133,7 @@ public class AnnotatedBeanDefinitionReader {
 	 * e.g. {@link Configuration @Configuration} classes
 	 */
 	public void register(Class<?>... componentClasses) {
+		// 配置类可以传入多个，依次注册传入的配置类.
 		for (Class<?> componentClass : componentClasses) {
 			registerBean(componentClass);
 		}

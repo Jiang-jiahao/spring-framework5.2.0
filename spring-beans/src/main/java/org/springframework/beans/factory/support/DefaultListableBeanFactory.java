@@ -858,12 +858,29 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		for (String beanName : beanNames) {
 			// 获取beanName对应的MergedBeanDefinition.
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// 如果bd对应的Bean实例满足：(不是抽象类 && 是单例 && 不是懒加载)
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// 判断BeanName对应的Bean实例是否是FactoryBean.
 				if (isFactoryBean(beanName)) {
+					// 通过beanName获取FactoryBean的实例，factoryBean的名称是："&" + beanName
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
 						boolean isEagerInit;
+						// 判断这个FactoryBean是否需要紧急初始化.
+						// System.getSecurityManager()方法是获取系统权限管理器，Java为了防止恶意代码执行(修改，删除操作系统文件)，做了权限管理，
+						// 默认的安全管理器配置文件是: $JAVA_HOME/jre/lib/security/java.policy
+						/**
+						 * 在做访问控制决定时，如果遇到通过调用不带上下文参数（请参阅下文，以获取关于上下文参数的信息）的 doPrivileged 标记为“特权”的调用方，
+						 * 则 checkPermission 方法将停止检查。如果该调用方的域具有指定的权限，则不进行进一步检查，并且 checkPermission 正常返回，
+						 * 指示允许所请求的访问。如果该域不具有指定的权限，则通常抛出异常。
+						 *
+						 *
+						 *  AccessController.doPrivileged()方法的例子：
+						 *  假设有这样一种情况：A程序想在 C:\\Users\\Jack\\Desktop\\test1  这个目录中新建一个文件，但是它没有相应的权限，
+						 *  但是它引用了另外一个Jar包B，刚好B有权限在C:\\Users\\Jack\\Desktop\\test1目录中新建文件，
+						 *  还有更巧的是B在新建文件的时候采用的是AccessController.doPrivileged方法进行的，这种情况下，A就可以调用B的创建文件的方法进行创建文件了。
+						 */
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
 											((SmartFactoryBean<?>) factory)::isEagerInit,

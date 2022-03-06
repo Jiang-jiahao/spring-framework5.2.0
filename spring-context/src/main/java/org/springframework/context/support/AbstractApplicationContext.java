@@ -1116,7 +1116,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		/*
 		 * 如果beanFactory之前没有注册嵌入值解析器，则注册默认的嵌入值解析器，
 		 * 主要用于注解属性值的解析例如：@Value("${app.name}")。
-		 * 值解析器设置的地方：在调用invokeBeanfactoryPostProcessor方法的时候，通过PropertySourcesPlaceholderConfigurer的后置处理方法设置进去的
+		 * 值解析器设置的地方：在调用invokeBeanFactoryPostProcessor方法的时候，通过PropertySourcesPlaceholderConfigurer的后置处理方法设置进去的
 		 */
 		if (!beanFactory.hasEmbeddedValueResolver()) {
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
