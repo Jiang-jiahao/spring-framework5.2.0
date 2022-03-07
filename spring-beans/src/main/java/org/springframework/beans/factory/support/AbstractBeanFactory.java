@@ -1357,40 +1357,83 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			throws BeanDefinitionStoreException {
 
 		synchronized (this.mergedBeanDefinitions) {
+			// 用于存放返回结果
 			RootBeanDefinition mbd = null;
 			RootBeanDefinition previous = null;
 
 			// Check with full lock now in order to enforce the same merged instance.
 			if (containingBd == null) {
+				// 检查beanName对应的MergedBeanDefinition是否存在于缓存中.
 				mbd = this.mergedBeanDefinitions.get(beanName);
 			}
-
+			// 如果beanName对应的BeanDefinition不在缓存中时
 			if (mbd == null || mbd.stale) {
 				previous = mbd;
 				mbd = null;
 				if (bd.getParentName() == null) {
+					// 如果bd的parentName为空，表示bd没有父Definition，不需要与父Definition进行合并操作.即：bd的MergedBeanDefinition就是bd自己
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
+						// 如果bd的类型为RootBeanDefinition，则bd的MergedBeanDefinition就是bd自己，直接克隆一个副本
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
+						// 否则使用bd构建一个RootBeanDefinition.
+						// 一般情况下，BeanDefinition在被加载之后是GenericBeanDefinition(xml) 或者 ScannedGenericBeanDefinition(注解)
 						mbd = new RootBeanDefinition(bd);
 					}
 				}
 				else {
 					// Child bean definition: needs to be merged with parent.
+					// 否则，bd存在着父Definition，需要和父Definition合并.
 					BeanDefinition pbd;
 					try {
+						// 获取父Definition的BeanName.
 						String parentBeanName = transformedBeanName(bd.getParentName());
+						// 如果父Definition的beanName和当前bean的beanName不同
 						if (!beanName.equals(parentBeanName)) {
+							// 则获取父Definition的MergedBeanDefinition（也就是bd的爷爷定义...）
+							/**
+							 * 一般情况下，Spring通过反射机制利用bean的 class属性指定实现类来实例化bean。
+							 *   而 FactoryBean是一种特殊的bean，它是个工厂bean，可以自己创建bean实例，如果一个类实现了FactoryBean接口，
+							 *   则该类可以自己定义创建实例对象的方法，只需要实现它的getObject() 方法。
+							 *
+							 * 很多中间件都利用 FactoryBean 来进行扩展。例如：
+							 *
+							 * public class AppleFactoryBean implements FactoryBean<Apple> {
+									@Override
+									public Apple getObject() throws Exception {
+										Apple apple = new Apple();
+										apple.setName("bigApple");
+										return apple;
+									}
+									@Override
+									public Class<?> getObjectType() {
+										return Apple.class;
+									}
+									@Override
+									public boolean isSingleton() {
+										return true;
+									}
+								}
+							 注意：
+							 为了区分 “FactoryBean”和 “FactoryBean创建的bean 实例”，Spring使用了“&”前缀。假设我们的beanName为apple，
+							 则getBean("apple")获得的是AppleFactoryBean通过getObject() 方法创建的bean实例；
+							 而 getBean("&apple")获得的是AppleFactoryBean本身。
+							 *
+							 */
 							pbd = getMergedBeanDefinition(parentBeanName);
 						}
 						else {
+							// 如果父Definition的beanName和bd的beanName相同，则拿到父亲的BeanFactory
+							// 只有存在父BeanFactory的情况下，才允许父Definition的beanName与自己相同，否则就是将自己设置为父Definition.
 							BeanFactory parent = getParentBeanFactory();
+							// 如果父BeanFactory是ConfigurableBeanFactory，则通过BeanFactory获取父Definition的MergedBeanDefinition.
 							if (parent instanceof ConfigurableBeanFactory) {
 								pbd = ((ConfigurableBeanFactory) parent).getMergedBeanDefinition(parentBeanName);
 							}
 							else {
+								// 否则抛出异常.
 								throw new NoSuchBeanDefinitionException(parentBeanName,
 										"Parent name '" + parentBeanName + "' is equal to bean name '" + beanName +
 										"': cannot be resolved without an AbstractBeanFactory parent");
@@ -1402,11 +1445,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
 					// Deep copy with overridden values.
+					// 使用父Definition pbd构建一个新的RootBeanDefinition对象（通过深拷贝）
 					mbd = new RootBeanDefinition(pbd);
+					// 然后使用bd覆盖父Definition.
 					mbd.overrideFrom(bd);
 				}
 
 				// Set default singleton scope, if not configured before.
+				// 如果没有设置Scope属性，默认设置为singleton.
 				if (!StringUtils.hasLength(mbd.getScope())) {
 					mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
 				}
@@ -1415,12 +1461,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Let's correct this on the fly here, since this might be the result of
 				// parent-child merging for the outer bean, in which case the original inner bean
 				// definition will not have inherited the merged outer bean's singleton status.
+				// 如果containingBd不为空 && 不是单实例的 && mbd为单实例，则将mbd的scope属性设置为containingBd的scope属性.
 				if (containingBd != null && !containingBd.isSingleton() && mbd.isSingleton()) {
 					mbd.setScope(containingBd.getScope());
 				}
 
 				// Cache the merged bean definition for the time being
 				// (it might still get re-merged later on in order to pick up metadata changes)
+				// 如果containingBd为空，而且设置了缓存Bean的元数据，则将beanName和mbd放入到beanDefinition的缓存中，便于以后可以直接取出使用.
 				if (containingBd == null && isCacheBeanMetadata()) {
 					this.mergedBeanDefinitions.put(beanName, mbd);
 				}

@@ -317,7 +317,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
-
+		// 将当前开始加载的resources资源放到ThreadLocal中，这个ThreadLocal是一个带有名称的ThreadLocal，从ThreadLocal中继承而来.
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
@@ -331,9 +331,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
 				InputSource inputSource = new InputSource(inputStream);
+				// 设置加载到的资源的字符编码
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				// 执行bean定义加载
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
@@ -390,7 +392,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			throws BeanDefinitionStoreException {
 
 		try {
+			// 将xml配置文件通过JDK中的JAXP(Java API for XMLProcessing)解析为Document对象
 			Document doc = doLoadDocument(inputSource, resource);
+			// 注册bean定义
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -509,9 +513,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		// 通过反射创建Bean定义文档读取器，默认类型为：DefaultBeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		// 获取之前已经加载的bean定义数量，直接通过beanDefinitionMap.size获取
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 执行xml的解析及bean定义注册。在创建bean定义读取器上下文时，会去创建默认的DefaultNamespaceHandlerResolver
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+		// 返回本次注册的bean定义的数量
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

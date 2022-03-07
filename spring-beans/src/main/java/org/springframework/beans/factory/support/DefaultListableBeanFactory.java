@@ -877,7 +877,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						 *
 						 *
 						 *  AccessController.doPrivileged()方法的例子：
-						 *  假设有这样一种情况：A程序想在 C:\\Users\\Jack\\Desktop\\test1  这个目录中新建一个文件，但是它没有相应的权限，
+						 *  假设有这样一种情况：A程序想在 C:\\Users\\Jack\\Desktop\\test1 这个目录中新建一个文件，但是它没有相应的权限，
 						 *  但是它引用了另外一个Jar包B，刚好B有权限在C:\\Users\\Jack\\Desktop\\test1目录中新建文件，
 						 *  还有更巧的是B在新建文件的时候采用的是AccessController.doPrivileged方法进行的，这种情况下，A就可以调用B的创建文件的方法进行创建文件了。
 						 */
