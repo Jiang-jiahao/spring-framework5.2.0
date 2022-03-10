@@ -348,7 +348,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Create bean instance.
 				// beanDefinition如果是单例的，则调用createBean方法进行单实例bean的创建.
 				if (mbd.isSingleton()) {
-					// 此处的lambda表达式为：ObjectFactory的getObject方法
+					// 此处的lambda表达式为：获取单例的方法
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							/*
