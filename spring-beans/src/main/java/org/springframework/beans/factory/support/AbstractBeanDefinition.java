@@ -178,6 +178,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private ConstructorArgumentValues constructorArgumentValues;
 
+	/**
+	 * 表示的是可变的属性值。key-value类型，表示这些属性值在被赋值给Bean之前是可以修改的.
+	 */
 	@Nullable
 	private MutablePropertyValues propertyValues;
 
@@ -193,6 +196,10 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	private boolean enforceDestroyMethod = true;
 
+	/**
+	 * 是否是合成类（是不是应用自定义的，例如生成AOP代理时，会用到某些辅助类，这些辅助类不是应用自定义的，这个就是合成类）
+	 * 创建AOP时候为true
+	 */
 	private boolean synthetic = false;
 
 	private int role = BeanDefinition.ROLE_APPLICATION;

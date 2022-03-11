@@ -202,8 +202,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		// 根据beanName从单实例对象缓存中获取单例对象(singletonObjects为一个ConcurrentHashMap，就是用来保存所有的单实例Bean的,
 		// key:beanName value:beanInstance) 相当于一级缓存
 		Object singletonObject = this.singletonObjects.get(beanName);
-		// 如果缓存中不存在，而且beanName对应的单实例Bean正在创建中.
+		// 如果缓存中不存在，而且beanName对应的单实例Bean正在创建中（表明了只有循环依赖的时候才会使用二级缓存和三级缓存）.
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			//这里加上synchronized，防止出现方法执行两次导致两次aop的情况
 			synchronized (this.singletonObjects) {
 				// 从早期单实例对象缓存中获取单例对象，之所以称为单实例早期对象，
 				// 是因为earlySingletonObjects里面的对象都是通过提前曝光的ObjectFactory创建出来的，还未进行属性的填充）
@@ -213,7 +214,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					// 则从单例工厂缓存中获取BeanName对应的单例工厂.
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
-						// 如果存在着单例对象工厂，则通过工厂创建一个单例对象，
+						// 如果存在着单例对象工厂，则通过工厂创建一个单例对象(该对象有可能执行了AOP)，
 						// 调用的是：addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean))中的lambda表达式
 						singletonObject = singletonFactory.getObject();
 						// 将通过单例对象工厂创建的单例对象放入到早期单例对象缓存中，这个早期对象指的是一个空的未完成属性赋值和初始化的对象。

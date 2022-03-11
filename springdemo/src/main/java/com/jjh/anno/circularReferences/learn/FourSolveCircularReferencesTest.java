@@ -2,6 +2,7 @@ package com.jjh.anno.circularReferences.learn;
 
 import com.jjh.anno.circularReferences.A;
 import com.jjh.anno.circularReferences.B;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -14,10 +15,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 一级缓存+二级缓存+锁解决循环依赖问题，利用将循环依赖类的aop提前，解决aop问题
- * 存在的问题：当存在A和B相互依赖B和C相互依赖A和C也相互依赖的情况时，A -> B -> 动态代理A -> C -> 动态代理A，由此可见会执行多次代理
+ * 一级缓存+二级缓存+三级缓存+锁解决循环依赖问题，使其aop只执行一次
+ *
  */
-public class ThreeSolveCircularReferencesPlusTest {
+public class FourSolveCircularReferencesTest {
 
 	//bean定义缓存
 	private static final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
@@ -30,6 +31,9 @@ public class ThreeSolveCircularReferencesPlusTest {
 
 	//二级缓存
 	private static final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
+
+	//三级缓存
+	private static final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
 
 	public static void main(String[] args) throws Exception {
@@ -52,14 +56,14 @@ public class ThreeSolveCircularReferencesPlusTest {
 	//创建Bean
 	private static Object getBean(String beanName) throws Exception {
 		/**
-		 * 先从一级缓存读取
+         * 先从一级缓存读取
 		 */
 		if (singletonObjects.get(beanName) != null) {
 			return singletonObjects.get(beanName);
 		}
 
 		/**
-		 * 加锁
+         * 加锁
 		 */
 		synchronized (singletonObjects) {
 
@@ -75,16 +79,20 @@ public class ThreeSolveCircularReferencesPlusTest {
 			 * 只针对循环依赖的类进行aop操作
 			 * 如果正在创建中，则是循环依赖
 			 */
-			if (singletonsCurrentlyInCreation.contains(beanName)) {
-				//从二级缓存读取，获取到的是不完整的bean
+			if(singletonsCurrentlyInCreation.contains(beanName)){
+				//从二级缓存读取，获取到的是不完整的bean（这里其实只有循环依赖的bean才会用到二级缓存）
 				Object o = earlySingletonObjects.get(beanName);
-				//进行aop
-				System.out.println(beanName + " begin aop...");
-				return new JdkProxyBeanPostProcessor().getEarlyBeanReference(o, beanName);
+				if(o == null){
+					//三级缓存拿
+					ObjectFactory<?> objectFactory = singletonFactories.get(beanName);
+					System.out.println(beanName + " begin aop...");
+					o = objectFactory.getObject();
+					earlySingletonObjects.put(beanName,o);
+				}
 			}
 
 			/**
-			 * 从二级缓存读取，获取到的是不完整的bean
+             * 从二级缓存读取，获取到的是不完整的bean
 			 */
 			if (earlySingletonObjects.get(beanName) != null) {
 				return earlySingletonObjects.get(beanName);
@@ -98,9 +106,11 @@ public class ThreeSolveCircularReferencesPlusTest {
 			Object bean = beanClass.newInstance();
 
 			/**
-			 * 实例化之后就加入到二级缓存
+			 * 实例化后将有需要的（循环依赖的类）加入三级缓存
 			 */
-			earlySingletonObjects.put(beanName, bean);
+			Object finalBean = bean;
+			singletonFactories.put(beanName,() -> new JdkProxyBeanPostProcessor().getEarlyBeanReference(finalBean, beanName));
+
 
 
 			//3、属性注入
@@ -124,7 +134,7 @@ public class ThreeSolveCircularReferencesPlusTest {
 			//5、加入一级缓存
 			singletonObjects.put(beanName, bean);
 			/**
-			 * 删除二级缓存数据
+             * 删除二级缓存数据
 			 */
 			earlySingletonObjects.remove(beanName);
 			return bean;
