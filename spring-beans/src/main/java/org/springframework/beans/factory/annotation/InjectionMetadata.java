@@ -94,6 +94,7 @@ public class InjectionMetadata {
 		for (InjectedElement element : this.injectedElements) {
 			Member member = element.getMember();
 			if (!beanDefinition.isExternallyManagedConfigMember(member)) {
+				//设置到beanDefinition中
 				beanDefinition.registerExternallyManagedConfigMember(member);
 				checkedElements.add(element);
 				if (logger.isTraceEnabled()) {

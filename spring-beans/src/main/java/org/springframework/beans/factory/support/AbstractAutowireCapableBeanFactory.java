@@ -588,6 +588,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					 * 	【InitDestroyAnnotationBeanPostProcessor】，用来处理@Predestroy和@PostConstruct注解
 					 * 	【ScheduledAnnotationBeanPostProcessor】，用来处理@Scheduled注解
 					 * 		等后置处理器
+					 * 	调用MergedBeanDefinitionPostProcessor
 					 */
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}

@@ -43,6 +43,9 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 	 * @param beanType the actual type of the managed bean instance
 	 * @param beanName the name of the bean
 	 * @see AbstractAutowireCapableBeanFactory#applyMergedBeanDefinitionPostProcessors
+	 *
+	 * 用来处理合并之后的bean定义，通常会在bean刚初始化完成，属性填充之前执行。
+	 * 找出带有特定注解的属性或者方法。
 	 */
 	void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName);
 
