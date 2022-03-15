@@ -500,14 +500,23 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// 初始化文件请求解析器组件，没有提供默认的文件上传请求解析器。
 		initMultipartResolver(context);
+		// 初始化国际化解析器组件
 		initLocaleResolver(context);
+		// 初始化主题解析器组件
 		initThemeResolver(context);
+		// ****** 初始化请求处理HandlerMapping器组件 ******
 		initHandlerMappings(context);
+		// ****** 初始化请求处理器适配器组件 ******
 		initHandlerAdapters(context);
+		// 初始化请求处理器适配器的异常处理器组件
 		initHandlerExceptionResolvers(context);
+		// 初始化视图名称转换器组件
 		initRequestToViewNameTranslator(context);
+		// 初始化视图解析器组件
 		initViewResolvers(context);
+		// 初始化FlashMap管理器组件，用来在重定向过程中携带数据
 		initFlashMapManager(context);
 	}
 

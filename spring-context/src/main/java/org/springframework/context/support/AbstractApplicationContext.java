@@ -400,6 +400,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			this.earlyApplicationEvents.add(applicationEvent);
 		}
 		else {
+			//派发事件，如果有springmvc的话，则会加载springmvc的九大组件
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
@@ -1238,10 +1239,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Also removes a JVM shutdown hook, if registered, as it's not needed anymore.
 	 * @see #doClose()
 	 * @see #registerShutdownHook()
+	 *
+	 * 关闭容器时执行。acx.close();
 	 */
 	@Override
 	public void close() {
+		// 获取锁
 		synchronized (this.startupShutdownMonitor) {
+			// 调用doClose方法关闭容器
 			doClose();
 			// If we registered a JVM shutdown hook, we don't need it anymore now:
 			// We've already explicitly closed the context.
@@ -1272,10 +1277,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				logger.debug("Closing " + this);
 			}
 
+			// 取消Spring上下文Bean的注册
 			LiveBeansView.unregisterApplicationContext(this);
 
 			try {
 				// Publish shutdown event.
+				// 发布容器关闭事件
 				publishEvent(new ContextClosedEvent(this));
 			}
 			catch (Throwable ex) {
@@ -1293,12 +1300,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 
 			// Destroy all cached singletons in the context's BeanFactory.
+			// 销毁容器中的所有单实例bean，包括清空bean的缓存.
 			destroyBeans();
 
 			// Close the state of this context itself.
+			// 关闭bean工厂，设置bean工厂的序列化ID为null
 			closeBeanFactory();
 
 			// Let subclasses do some final clean-up if they wish...
+			// 留给开发人员的一个扩展点。用于容器关闭时做一些定制化处理.
 			onClose();
 
 			// Reset local application listeners to pre-refresh state.

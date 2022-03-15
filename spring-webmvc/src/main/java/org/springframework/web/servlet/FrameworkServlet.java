@@ -527,7 +527,13 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+			/**
+			 * 初始化Web应用上下文对象,包括：
+			 * 	（1）初始化及刷新springMVC子容器
+			 * 	（2）初始化SpringMVC的9大组件
+			 */
 			this.webApplicationContext = initWebApplicationContext();
+			// 扩展点
 			initFrameworkServlet();
 		}
 		catch (ServletException | RuntimeException ex) {
@@ -558,6 +564,8 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
+		// 从ServletContext对象中获取到Spring Root上下文对象
+		// 因为Spring的Root上下文对象在之前已经被放入到了ServletContext中，所以此处可以直接获取到Spring Root上下文
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
@@ -573,8 +581,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					if (cwac.getParent() == null) {
 						// The context instance was injected without an explicit parent -> set
 						// the root application context (if any; may be null) as the parent
+						// 设置子容器和父容器关系的关键代码.
+						// 通过子容器中的一个字段，直接引用到父容器对象
+						// 如果删除了该行，在Controller中将会引用不到Service的Bean
 						cwac.setParent(rootContext);
 					}
+					// 配置并刷新SpringWeb上下文对象
 					configureAndRefreshWebApplicationContext(cwac);
 				}
 			}
@@ -588,6 +600,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 		if (wac == null) {
 			// No context instance is defined for this servlet -> create a local one
+			//如果是null，则这个方法值中会加载springmvc的九大组件
 			wac = createWebApplicationContext(rootContext);
 		}
 
@@ -596,12 +609,14 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// support or the context injected at construction time had already been
 			// refreshed -> trigger initial onRefresh manually here.
 			synchronized (this.onRefreshMonitor) {
+				// 通过子类去初始化SpringMVC的九大组件
 				onRefresh(wac);
 			}
 		}
 
 		if (this.publishContext) {
 			// Publish the context as a servlet context attribute.
+			// 将Servlet名称作为一个属性设置到Servlet的上下文中
 			String attrName = getServletContextAttributeName();
 			getServletContext().setAttribute(attrName, wac);
 		}
@@ -683,10 +698,16 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						ObjectUtils.getDisplayString(getServletContext().getContextPath()) + '/' + getServletName());
 			}
 		}
-
+		// 设置子容器的属性
 		wac.setServletContext(getServletContext());
 		wac.setServletConfig(getServletConfig());
 		wac.setNamespace(getNamespace());
+		/*
+		 * 给容器中注册一个刷新事件，这个事件实现了ApplicationListener接口，在onApplicationEvent方法中会调用模板方法onRefresh来
+		 * 初始化SpringMVC中的9大组件，初始化过程在DispatcherServlet类的onRefresh方法中实现。
+		 *
+		 * 传入ContextRefreshListener事件
+		 */
 		wac.addApplicationListener(new SourceFilteringListener(wac, new ContextRefreshListener()));
 
 		// The wac environment's #initPropertySources will be called in any case when the context
@@ -698,7 +719,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 
 		postProcessWebApplicationContext(wac);
+		//执行初始化器
 		applyInitializers(wac);
+		// 刷新完成之后，Controller，ViewResolver以及HandlerMapper将会加入到IOC容器中
+		// refresh方法在ConfigurableApplicationContext接口中声明
 		wac.refresh();
 	}
 

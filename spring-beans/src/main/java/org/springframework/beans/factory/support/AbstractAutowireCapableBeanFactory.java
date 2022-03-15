@@ -583,6 +583,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					/**
 					 * 其中包括了
 					 * 	【AutowiredAnnotationBeanPostProcessor】，  用来处理@Autowired,@Value,@Inject注解
+					 * 	 设置BeanDefinition中的externallyManagedConfigMembers属性
 					 * 	【CommonAnnotationBeanPostProcessor】，    用来处理@Resource注解
 					 * 	【RequiredAnnotationBeanPostProcessor】， 用来处理@Required注解
 					 * 	【InitDestroyAnnotationBeanPostProcessor】，用来处理@Predestroy和@PostConstruct注解

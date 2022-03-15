@@ -37,58 +37,22 @@ import javax.servlet.ServletContextListener;
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
 	/**
-	 * Create a new {@code ContextLoaderListener} that will create a web application
-	 * context based on the "contextClass" and "contextConfigLocation" servlet
-	 * context-params. See {@link ContextLoader} superclass documentation for details on
-	 * default values for each.
-	 * <p>This constructor is typically used when declaring {@code ContextLoaderListener}
-	 * as a {@code <listener>} within {@code web.xml}, where a no-arg constructor is
-	 * required.
-	 * <p>The created application context will be registered into the ServletContext under
-	 * the attribute name {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
-	 * and the Spring application context will be closed when the {@link #contextDestroyed}
-	 * lifecycle method is invoked on this listener.
-	 * @see ContextLoader
-	 * @see #ContextLoaderListener(WebApplicationContext)
-	 * @see #contextInitialized(ServletContextEvent)
-	 * @see #contextDestroyed(ServletContextEvent)
+	 * 提供给xml配置版本使用的构造器。如果配置的是如下的xml，则调用该无参构造函数进行
+	 *  <listener>
+		 	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+		</listener>
+		<context-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/root-context.xml</param-value>
+		</context-param>
 	 */
 	public ContextLoaderListener() {
 	}
 
 	/**
-	 * Create a new {@code ContextLoaderListener} with the given application context. This
-	 * constructor is useful in Servlet 3.0+ environments where instance-based
-	 * registration of listeners is possible through the {@link javax.servlet.ServletContext#addListener}
-	 * API.
-	 * <p>The context may or may not yet be {@linkplain
-	 * org.springframework.context.ConfigurableApplicationContext#refresh() refreshed}. If it
-	 * (a) is an implementation of {@link ConfigurableWebApplicationContext} and
-	 * (b) has <strong>not</strong> already been refreshed (the recommended approach),
-	 * then the following will occur:
-	 * <ul>
-	 * <li>If the given context has not already been assigned an {@linkplain
-	 * org.springframework.context.ConfigurableApplicationContext#setId id}, one will be assigned to it</li>
-	 * <li>{@code ServletContext} and {@code ServletConfig} objects will be delegated to
-	 * the application context</li>
-	 * <li>{@link #customizeContext} will be called</li>
-	 * <li>Any {@link org.springframework.context.ApplicationContextInitializer ApplicationContextInitializer org.springframework.context.ApplicationContextInitializer ApplicationContextInitializers}
-	 * specified through the "contextInitializerClasses" init-param will be applied.</li>
-	 * <li>{@link org.springframework.context.ConfigurableApplicationContext#refresh refresh()} will be called</li>
-	 * </ul>
-	 * If the context has already been refreshed or does not implement
-	 * {@code ConfigurableWebApplicationContext}, none of the above will occur under the
-	 * assumption that the user has performed these actions (or not) per his or her
-	 * specific needs.
-	 * <p>See {@link org.springframework.web.WebApplicationInitializer} for usage examples.
-	 * <p>In any case, the given application context will be registered into the
-	 * ServletContext under the attribute name {@link
-	 * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Spring
-	 * application context will be closed when the {@link #contextDestroyed} lifecycle
-	 * method is invoked on this listener.
-	 * @param context the application context to manage
-	 * @see #contextInitialized(ServletContextEvent)
-	 * @see #contextDestroyed(ServletContextEvent)
+	 * 提供给注解配置版本使用的构造器
+	 * 入参为Web应用上下文对象
+	 * @param context
 	 */
 	public ContextLoaderListener(WebApplicationContext context) {
 		super(context);
@@ -96,7 +60,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 
 
 	/**
-	 * Initialize the root web application context.
+	 * springmvc启动的第一步 -> 初始化跟容器的web上下文对象
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
