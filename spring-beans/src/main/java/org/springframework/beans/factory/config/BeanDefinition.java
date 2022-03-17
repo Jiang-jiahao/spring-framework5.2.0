@@ -339,6 +339,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return a description of the resource that this bean definition
 	 * came from (for the purpose of showing context in case of errors).
+	 *
+	 * 获取当前bean的资源描述，用于在出现错误时上下文信息.
 	 */
 	@Nullable
 	String getResourceDescription();
@@ -348,6 +350,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Allows for retrieving the decorated bean definition, if any.
 	 * <p>Note that this method returns the immediate originator. Iterate through the
 	 * originator chain to find the original BeanDefinition as defined by the user.
+	 * 获取当前bean对应的原始的bean定义.
 	 */
 	@Nullable
 	BeanDefinition getOriginatingBeanDefinition();

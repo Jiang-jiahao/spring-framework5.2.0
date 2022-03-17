@@ -36,13 +36,25 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.BeanNameAware
  * @see org.springframework.beans.factory.support.RootBeanDefinition
  * @see org.springframework.beans.factory.support.ChildBeanDefinition
+ *
+ * 用来保存Bean的定义。包括Bean的定义，名称及别名
+ *
  */
 public class BeanDefinitionHolder implements BeanMetadataElement {
 
+	/**
+	 * Bean定义
+	 */
 	private final BeanDefinition beanDefinition;
 
+	/**
+	 * 存放Bean名称
+	 */
 	private final String beanName;
 
+	/**
+	 * 存放Bean的别名.
+	 */
 	@Nullable
 	private final String[] aliases;
 

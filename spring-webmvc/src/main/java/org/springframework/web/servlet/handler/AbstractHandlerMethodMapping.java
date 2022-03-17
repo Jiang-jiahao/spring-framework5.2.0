@@ -199,6 +199,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	/**
 	 * Detects handler methods at initialization.
 	 * @see #initHandlerMethods
+	 * 初始化mapping
 	 */
 	@Override
 	public void afterPropertiesSet() {
@@ -254,6 +255,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+		//判断是不是处理器类型的（即@Controller注解）
 		if (beanType != null && isHandler(beanType)) {
 			detectHandlerMethods(beanName);
 		}
