@@ -186,6 +186,7 @@ class ConfigurationClassParser {
 			}
 		}
 
+		// 处理延迟ImportSelector
 		this.deferredImportSelectorHandler.process();
 	}
 
@@ -604,6 +605,7 @@ class ConfigurationClassParser {
 						ImportSelector selector = ParserStrategyUtils.instantiateClass(candidateClass, ImportSelector.class,
 								this.environment, this.resourceLoader, this.registry);
 
+						//判断是不是延时的ImportSelector
 						if (selector instanceof DeferredImportSelector) {
 							this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
 						}

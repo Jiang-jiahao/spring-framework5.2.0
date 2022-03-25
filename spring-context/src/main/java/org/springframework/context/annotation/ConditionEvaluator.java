@@ -78,13 +78,16 @@ class ConditionEvaluator {
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+		// 如果当前的配置类中没有使用@Conditional注解，直接返回false
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}
 
 		if (phase == null) {
+			// 是否标注有@Configuration
 			if (metadata instanceof AnnotationMetadata &&
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
+				// 递归调用shouldSkip
 				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
 			}
 			return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
@@ -92,12 +95,19 @@ class ConditionEvaluator {
 
 		List<Condition> conditions = new ArrayList<>();
 		for (String[] conditionClasses : getConditionClasses(metadata)) {
+			// 条件类的class名称.
 			for (String conditionClass : conditionClasses) {
 				Condition condition = getCondition(conditionClass, this.context.getClassLoader());
+				// 获取指定类中对应的condition列表
 				conditions.add(condition);
 			}
 		}
 
+		/*
+		 * 排序逻辑：
+		 * 	先判断是否实现了PriorityOrdered接口，实现了PriorityOrdered接口的Conditional优先级最高
+		 * 	如果都实现了PriorityOrdered接口或者都未实现PriorityOrdered接口，则判断是否实现了Ordered接口，如果都未实现，优先级相同，否则实现了Ordered接口的优先级更高
+		 */
 		AnnotationAwareOrderComparator.sort(conditions);
 
 		for (Condition condition : conditions) {
@@ -105,11 +115,13 @@ class ConditionEvaluator {
 			if (condition instanceof ConfigurationCondition) {
 				requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
 			}
+			// 通过扩展Condition接口，自定义实现类来判断当前的bean定义是否需要跳过. 通过Condition的matches方法的返回值判断
+			// matches方法返回了true，表示需要正常注册bean定义。如果返回了false，则表示不需要注册，直接跳过
 			if ((requiredPhase == null || requiredPhase == phase) && !condition.matches(this.context, metadata)) {
 				return true;
 			}
 		}
-
+		// shouldSkip() 返回了false，表示不能跳过当前Bean的注册
 		return false;
 	}
 
