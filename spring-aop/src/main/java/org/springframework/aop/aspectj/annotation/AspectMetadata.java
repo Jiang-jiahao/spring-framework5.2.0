@@ -99,7 +99,7 @@ public class AspectMetadata implements Serializable {
 		}
 		this.aspectClass = ajType.getJavaClass();
 		this.ajType = ajType;
-
+		// 这里判断传进的aspectClass是否有@Aspect注解，并且注解的值是否以什么什么打头，创建不同的kind值
 		switch (this.ajType.getPerClause().getKind()) {
 			case SINGLETON:
 				this.perClausePointcut = Pointcut.TRUE;

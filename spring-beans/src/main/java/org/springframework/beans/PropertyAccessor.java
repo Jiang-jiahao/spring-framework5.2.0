@@ -77,6 +77,7 @@ public interface PropertyAccessor {
 	 * @param propertyName the property to check
 	 * (may be a nested path and/or an indexed/mapped property)
 	 * @return whether the property is readable
+	 * 确定指定的属性是否可读
 	 */
 	boolean isReadableProperty(String propertyName);
 
@@ -99,6 +100,7 @@ public interface PropertyAccessor {
 	 * or {@code null} if not determinable
 	 * @throws PropertyAccessException if the property was valid but the
 	 * accessor method failed
+	 * 确定指定属性的属性类型，检查属性描述符或检查索引或映射元素的值
 	 */
 	@Nullable
 	Class<?> getPropertyType(String propertyName) throws BeansException;

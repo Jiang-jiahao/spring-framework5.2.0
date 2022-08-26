@@ -98,8 +98,10 @@ class ExtendedBeanInfo implements BeanInfo {
 	 */
 	public ExtendedBeanInfo(BeanInfo delegate) {
 		this.delegate = delegate;
+		// 获取属性描述符，并创建简化的属性描述符SimpleIndexedPropertyDescriptor或者SimplePropertyDescriptor
 		for (PropertyDescriptor pd : delegate.getPropertyDescriptors()) {
 			try {
+				// 判断该属性描述符是否是数组的
 				this.propertyDescriptors.add(pd instanceof IndexedPropertyDescriptor ?
 						new SimpleIndexedPropertyDescriptor((IndexedPropertyDescriptor) pd) :
 						new SimplePropertyDescriptor(pd));
@@ -113,8 +115,10 @@ class ExtendedBeanInfo implements BeanInfo {
 		}
 		MethodDescriptor[] methodDescriptors = delegate.getMethodDescriptors();
 		if (methodDescriptors != null) {
+			// 找到符合条件的写方法（返回值不是void的set方法等条件）
 			for (Method method : findCandidateWriteMethods(methodDescriptors)) {
 				try {
+					// 当set方法有返回值有且只有一个的时候，不会生产PropertyDescriptor，需要再下面方法自己添加
 					handleCandidateWriteMethod(method);
 				}
 				catch (IntrospectionException ex) {
@@ -288,6 +292,7 @@ class ExtendedBeanInfo implements BeanInfo {
 			super(propertyName, null, null);
 			this.readMethod = readMethod;
 			this.writeMethod = writeMethod;
+			// 获取属性的类型
 			this.propertyType = PropertyDescriptorUtils.findPropertyType(readMethod, writeMethod);
 		}
 

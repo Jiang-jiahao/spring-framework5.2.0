@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link PropertyAccessorUtils}.
- *
+ * 属性访问器的工具类测试（主要是一些属性名的字符串操作）
  * @author Juergen Hoeller
  * @author Chris Beams
  */

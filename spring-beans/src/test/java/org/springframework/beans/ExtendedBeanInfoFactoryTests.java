@@ -32,6 +32,7 @@ public class ExtendedBeanInfoFactoryTests {
 
 	private ExtendedBeanInfoFactory factory = new ExtendedBeanInfoFactory();
 
+	// 根据工厂，获取对应的BeanInfo
 	@Test
 	public void shouldNotSupportClassHavingOnlyVoidReturningSetter() throws IntrospectionException {
 		@SuppressWarnings("unused")

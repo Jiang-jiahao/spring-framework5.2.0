@@ -181,6 +181,8 @@ public abstract class AbstractPropertyAccessorTests {
 		assertThat(accessor.isWritableProperty("map[key4][1]")).isTrue();
 		assertThat(accessor.isWritableProperty("map[key4][1].name")).isTrue();
 		assertThat(accessor.isWritableProperty("array[key1]")).isFalse();
+		assertThat(accessor.isWritableProperty("array[0].date.defaultCenturyStart")).isFalse();
+		assertThat(accessor.isWritableProperty("array[0].date.a")).isFalse();
 	}
 
 	@Test

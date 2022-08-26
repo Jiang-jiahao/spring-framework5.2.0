@@ -116,6 +116,7 @@ class TypeConverterDelegate {
 			@Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
 
 		// Custom editor for this type?
+		// 判断该类型是否有自定义的编辑器
 		PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
 
 		ConversionFailedException conversionAttemptEx = null;
@@ -150,6 +151,7 @@ class TypeConverterDelegate {
 				}
 			}
 			if (editor == null) {
+				// 获取默认的编辑器
 				editor = findDefaultEditor(requiredType);
 			}
 			convertedValue = doConvertValue(oldValue, convertedValue, requiredType, editor);

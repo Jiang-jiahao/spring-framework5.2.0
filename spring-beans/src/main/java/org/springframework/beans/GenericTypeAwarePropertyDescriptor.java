@@ -37,7 +37,7 @@ import org.springframework.util.StringUtils;
  * Extension of the standard JavaBeans {@link PropertyDescriptor} class,
  * overriding {@code getPropertyType()} such that a generically declared
  * type variable will be resolved against the containing bean class.
- *
+ * 对标准JavaBeans PropertyDescriptor类的扩展，重写getPropertyType()，这样泛型声明的类型变量将根据包含的bean类进行解析。
  * @author Juergen Hoeller
  * @since 2.5.2
  */

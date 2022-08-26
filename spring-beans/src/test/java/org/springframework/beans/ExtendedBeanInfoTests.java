@@ -53,6 +53,7 @@ public class ExtendedBeanInfoTests {
 		assertThat(hasWriteMethodForProperty(ebi, "foo")).isFalse();
 	}
 
+	// 当set、get方法带有参数的时候，GenericBeanInfo不会产生属性描述符
 	@Test
 	public void standardWriteMethodOnly() throws IntrospectionException {
 		@SuppressWarnings("unused") class C {
@@ -163,7 +164,7 @@ public class ExtendedBeanInfoTests {
 
 		assertThat(hasReadMethodForProperty(ebi, "foo")).isTrue();
 		assertThat(hasWriteMethodForProperty(ebi, "foo")).isTrue();
-
+		// 当有方法重载的情况，取第一种，不会被覆盖
 		for (PropertyDescriptor pd : ebi.getPropertyDescriptors()) {
 			if (pd.getName().equals("foo")) {
 				assertThat(pd.getWriteMethod()).isEqualTo(C.class.getMethod("setFoo", String.class));
@@ -289,6 +290,7 @@ public class ExtendedBeanInfoTests {
 		assertThat(hasWriteMethodForProperty(ebi, "bar")).isTrue();
 	}
 
+	//不会获取非public的属性描述符
 	@Test
 	public void nonPublicStandardReadAndWriteMethods() throws Exception {
 		@SuppressWarnings("unused") class C {
@@ -800,6 +802,7 @@ public class ExtendedBeanInfoTests {
 		new ExtendedBeanInfo(Introspector.getBeanInfo(LawLibrary.class));
 	}
 
+	// is开头的被认为是读的方法
 	@Test
 	public void cornerSpr8949() throws IntrospectionException {
 		class A {
@@ -854,6 +857,7 @@ public class ExtendedBeanInfoTests {
 		assertThat(hasIndexedWriteMethodForProperty(ebi, "address")).isEqualTo(hasIndexedWriteMethod);
 	}
 
+	// 原始的BeanInfo，静态方法不会生成属性描述符
 	@Test
 	public void shouldSupportStaticWriteMethod() throws IntrospectionException {
 		{

@@ -37,7 +37,8 @@ import org.springframework.lang.Nullable;
 public abstract class AbstractPropertyAccessor extends TypeConverterSupport implements ConfigurablePropertyAccessor {
 
 	private boolean extractOldValueForEditor = false;
-
+	// 当设置（dog.name）这种嵌套属性的情况下，如果dog属性为null是否会报错
+	// 为true的话不会，为false会抛出NullValueInNestedPathException
 	private boolean autoGrowNestedPaths = false;
 
 

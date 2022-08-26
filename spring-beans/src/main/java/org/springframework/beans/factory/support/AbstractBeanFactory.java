@@ -244,13 +244,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
 
-		// 获取真正的BeanName。主要包括：(1) 去掉FactoryBean名称前面的&前缀；(2) bean别名解析；
+		// 获取真正的BeanName。主要包括：(1) 去掉FactoryBean名称前面的&前缀；(2) bean别名解析（如果有别名则获取别名）；
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
 		// 先尝试从缓存中获取单实例Bean，如果能获取到，说明已经被创建过
-		// 注意：如果是通过FactoryBean方式创建对象。在根据名称获取目标bean对象(非FactoryBean实例)时，此处返回的sharedInstance是FactoryBean对象
+		// 注意：如果是通过FactoryBean方式创建对象。再根据名称获取目标bean对象(非FactoryBean实例)时，此处返回的sharedInstance是FactoryBean对象
 		Object sharedInstance = getSingleton(beanName);
 		/**
 		 * 当组件实现了FactoryBean接口，并重写了getObject方法时。在从容器中获取bean的时候，sharedInstance就是容器中返回的bean对象
@@ -281,8 +281,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			// 获取Bean的父工厂？ 在Spring和SpringMVC整合之后，会存在着父子容器问题
 			// TODO 父子容器处理
 			BeanFactory parentBeanFactory = getParentBeanFactory();
+			// 父容器不为空，并且子容器没有该名字的beanDefinition，则从父容器获取该实例
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
+				// 获取到原名称
 				String nameToLookup = originalBeanName(name);
 				if (parentBeanFactory instanceof AbstractBeanFactory) {
 					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
@@ -1880,11 +1882,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
-		// 不为null而且以&开头
+		// bean原名称不为null而且以&开头，则表明是FactoryBean，做一些基本校验就返回
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
 			}
+			// bean名称加了&但是类型不是FactoryBean，则直接报错
 			if (!(beanInstance instanceof FactoryBean)) {
 				throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
 			}
@@ -1897,17 +1900,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
-		// 如果不是工厂bean或者bean的名称也是不是以&开头，则直接返回上一步中已经创建好的bean对象.
+		// 如果不是工厂bean并且bean的名称也是不是以&开头，则直接返回上一步中已经创建好的bean对象.
 		if (!(beanInstance instanceof FactoryBean)) {
 			return beanInstance;
 		}
 
+		// 是FactoryBean，但是不以&开头
 		Object object = null;
 		if (mbd != null) {
-			// 先从FactoryBean对应的缓存factoryBeanObjectCache中获取
 			mbd.isFactoryBean = true;
 		}
 		else {
+			// 先从FactoryBean对应的缓存factoryBeanObjectCache中获取
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {

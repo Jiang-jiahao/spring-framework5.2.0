@@ -81,6 +81,7 @@ import org.springframework.util.ClassUtils;
  * Base implementation of the {@link PropertyEditorRegistry} interface.
  * Provides management of default editors and custom editors.
  * Mainly serves as base class for {@link BeanWrapperImpl}.
+ * 管理PropertyEditor的中心接口基本实现，负责注册、查找对应的PropertyEditor
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -98,18 +99,23 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 
 	private boolean configValueEditorsActive = false;
 
+	// 装载【默认的】编辑器们，初始化的时候会注册好
 	@Nullable
 	private Map<Class<?>, PropertyEditor> defaultEditors;
 
+	// 如果想覆盖掉【默认行为】，可通过此Map覆盖（比如处理Charset类型你不想用默认的编辑器处理）
+	// 通过API：overrideDefaultEditor(...)放进此Map里
 	@Nullable
 	private Map<Class<?>, PropertyEditor> overriddenDefaultEditors;
 
+	// ======================注册自定义的编辑器======================
+	// 通过API：registerCustomEditor(...)放进此Map里（若没指定propertyPath）
 	@Nullable
 	private Map<Class<?>, PropertyEditor> customEditors;
-
+	// 通过API：registerCustomEditor(...)放进此Map里（若指定了propertyPath）
 	@Nullable
 	private Map<String, CustomEditorHolder> customEditorsForPath;
-
+	// 用于缓存自定义的编辑器
 	@Nullable
 	private Map<Class<?>, PropertyEditor> customEditorCache;
 
@@ -138,6 +144,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	/**
 	 * Activate the default editors for this registry instance,
 	 * allowing for lazily registering default editors when needed.
+	 * 激活这个注册表实例的默认编辑器，允许在需要时延迟注册默认编辑器
 	 */
 	protected void registerDefaultEditors() {
 		this.defaultEditorsActive = true;

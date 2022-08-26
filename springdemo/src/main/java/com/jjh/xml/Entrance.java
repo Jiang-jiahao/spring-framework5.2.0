@@ -22,19 +22,19 @@ public class Entrance {
 
 //		ApplicationContext context = new FileSystemXmlApplicationContext(path);
 //		ApplicationContext context = new ClassPathXmlApplicationContext(path);
-		IWelcomeService welcomeService = (IWelcomeService)context.getBean("welcomeService");
+//		IWelcomeService welcomeService = (IWelcomeService)context.getBean("welcomeService");
 		//获取userBeanFactory类中的geiObject方法执行的结果
 		User user1 = (User)context.getBean("userFactoryBean");
 		User user2 = (User)context.getBean("userFactoryBean");
 		//获取userBeanFactory的实例
 		UserFactoryBean userFactoryBean = (UserFactoryBean)context.getBean("&userFactoryBean");
-		welcomeService.sayHello("jjh");
-		//获取BeanDefinitionRegistryPostProcessor注册进入的实例
-		Student student = (Student)context.getBean("student");
-		System.out.println(student);
-		//Aware
-		Aware aware = (Aware)context.getBean("testAware");
-		System.out.println(aware);
+//		welcomeService.sayHello("jjh");
+//		//获取BeanDefinitionRegistryPostProcessor注册进入的实例
+//		Student student = (Student)context.getBean("student");
+//		System.out.println(student);
+//		//Aware
+//		Aware aware = (Aware)context.getBean("testAware");
+//		System.out.println(aware);
 
 	}
 }

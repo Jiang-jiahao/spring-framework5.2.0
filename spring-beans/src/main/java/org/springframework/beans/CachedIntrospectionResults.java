@@ -97,6 +97,7 @@ public final class CachedIntrospectionResults {
 			SpringProperties.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
 
 	/** Stores the BeanInfoFactory instances. */
+	// 存储BeanInfoFactory实例，在META-INF目录下的spring.factory文件中配置了ExtendedBeanInfoFactory
 	private static List<BeanInfoFactory> beanInfoFactories = SpringFactoriesLoader.loadFactories(
 			BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
 
@@ -106,6 +107,7 @@ public final class CachedIntrospectionResults {
 	 * Set of ClassLoaders that this CachedIntrospectionResults class will always
 	 * accept classes from, even if the classes do not qualify as cache-safe.
 	 */
+	// CachedIntrospectionResults类将始终接受来自其中的类的一组classloader，即使这些类不符合安全缓存的条件。
 	static final Set<ClassLoader> acceptedClassLoaders =
 			Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
@@ -113,6 +115,7 @@ public final class CachedIntrospectionResults {
 	 * Map keyed by Class containing CachedIntrospectionResults, strongly held.
 	 * This variant is being used for cache-safe bean classes.
 	 */
+	// 强持有，用于缓存安全的bean类
 	static final ConcurrentMap<Class<?>, CachedIntrospectionResults> strongClassCache =
 			new ConcurrentHashMap<>(64);
 
@@ -120,6 +123,7 @@ public final class CachedIntrospectionResults {
 	 * Map keyed by Class containing CachedIntrospectionResults, softly held.
 	 * This variant is being used for non-cache-safe bean classes.
 	 */
+	// 软持有，用于缓存非安全的类
 	static final ConcurrentMap<Class<?>, CachedIntrospectionResults> softClassCache =
 			new ConcurrentReferenceHashMap<>(64);
 
@@ -176,7 +180,7 @@ public final class CachedIntrospectionResults {
 
 		results = new CachedIntrospectionResults(beanClass);
 		ConcurrentMap<Class<?>, CachedIntrospectionResults> classCacheToUse;
-
+		// 判断类加载器是否安全并且是接受的类加载器
 		if (ClassUtils.isCacheSafe(beanClass, CachedIntrospectionResults.class.getClassLoader()) ||
 				isClassLoaderAccepted(beanClass.getClassLoader())) {
 			classCacheToUse = strongClassCache;

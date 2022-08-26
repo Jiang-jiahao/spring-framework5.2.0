@@ -164,6 +164,7 @@ public abstract class ObjectUtils {
 	 * @return either the value held within the {@code Optional}, {@code null}
 	 * if the {@code Optional} is empty, or simply the given object as-is
 	 * @since 5.0
+	 * 解开optional类的包装（该类一般用于包装对象，有一系列方法，可以有效防止空指针）
 	 */
 	@Nullable
 	public static Object unwrapOptional(@Nullable Object obj) {
