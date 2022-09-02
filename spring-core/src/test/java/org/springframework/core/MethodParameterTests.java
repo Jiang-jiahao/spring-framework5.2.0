@@ -22,7 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -119,10 +121,11 @@ class MethodParameterTests {
 		assertThat(methodParameter.getParameterAnnotation(Param.class)).as("Failed to find @Param annotation").isNotNull();
 	}
 
-	@Test  // SPR-16652
+	@Test
+		// SPR-16652
 	void annotatedConstructorParameterInInnerClass() throws Exception {
 		Constructor<?> constructor = InnerClass.class.getConstructor(getClass(), String.class, Callable.class);
-
+		// 内部类的第一个参数是其父类-MethodParameterTests
 		MethodParameter methodParameter = MethodParameter.forExecutable(constructor, 0);
 		assertThat(methodParameter.getParameterType()).isEqualTo(getClass());
 		assertThat(methodParameter.getParameterAnnotation(Param.class)).isNull();
@@ -136,7 +139,8 @@ class MethodParameterTests {
 		assertThat(methodParameter.getParameterAnnotation(Param.class)).isNull();
 	}
 
-	@Test  // SPR-16734
+	@Test
+		// SPR-16734
 	void genericConstructorParameterInInnerClass() throws Exception {
 		Constructor<?> constructor = InnerClass.class.getConstructor(getClass(), String.class, Callable.class);
 
@@ -173,6 +177,16 @@ class MethodParameterTests {
 		MethodParameter m3 = MethodParameter.forExecutable(method, -1).nested();
 		assertThat(m1).isEqualTo(m2).isNotEqualTo(m3);
 		assertThat(m1.hashCode()).isEqualTo(m2.hashCode());
+	}
+
+	// 测试nested
+	@Test
+	void testNested() throws Exception {
+		Method method = getClass().getMethod("testNestedMethod");
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
+//		MethodParameter m2 = m1.nested();
+		MethodParameter m3 = m1.nested(-1);
+		System.out.println(m3);
 	}
 
 	@Test
@@ -235,6 +249,10 @@ class MethodParameterTests {
 		assertThat(m1.getTypeIndexForCurrentLevel()).isNull();
 		assertThat(m2.getTypeIndexForCurrentLevel()).isEqualTo(2);
 		assertThat(m3.getTypeIndexForCurrentLevel()).isEqualTo(3);
+	}
+
+	public List<StringList> testNestedMethod() {
+		return null;
 	}
 
 	public int method(String p1, long p2) {

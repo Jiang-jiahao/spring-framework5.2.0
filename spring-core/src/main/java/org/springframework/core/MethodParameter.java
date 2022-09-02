@@ -45,6 +45,7 @@ import org.springframework.util.ObjectUtils;
  * Helper class that encapsulates the specification of a method parameter, i.e. a {@link Method}
  * or {@link Constructor} plus a parameter index and a nested type index for a declared generic
  * type. Useful as a specification object to pass along.
+ * 封装方法参数规范的Helper类，即方法或构造函数加上参数索引和声明泛型类型的嵌套类型索引。用作传递的规范对象
  *
  * <p>As of 4.2, there is a {@link org.springframework.core.annotation.SynthesizingMethodParameter}
  * subclass available which synthesizes annotations with attribute aliases. That subclass is used
@@ -60,42 +61,51 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.core.annotation.SynthesizingMethodParameter
  */
 public class MethodParameter {
-
+	// 空的注解集合，用来返回
 	private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
 
 
 	private final Executable executable;
 
+	// 构造器或方法参数索引
 	private final int parameterIndex;
 
 	@Nullable
 	private volatile Parameter parameter;
 
+	// 目标类型的嵌套等级（通常为1；比如，在列表的情况下，则1表示嵌套列表，而2表示嵌套列表的元素）
 	private int nestingLevel;
 
 	/** Map from Integer level to Integer type index. */
+	// 从整数嵌套等级到整数类型索引的映射
 	@Nullable
 	Map<Integer, Integer> typeIndexesPerLevel;
 
 	/** The containing class. Could also be supplied by overriding {@link #getContainingClass()} */
+	// 所在的类
 	@Nullable
 	private volatile Class<?> containingClass;
 
+	// 构造器或方法参数类型
 	@Nullable
 	private volatile Class<?> parameterType;
 
+	// 构造器或方法泛型参数类型
 	@Nullable
 	private volatile Type genericParameterType;
 
 	@Nullable
 	private volatile Annotation[] parameterAnnotations;
 
+	// 用于发现方法和构造函数的参数名的发现器
 	@Nullable
 	private volatile ParameterNameDiscoverer parameterNameDiscoverer;
 
+	// 构造器或方法参数名
 	@Nullable
 	private volatile String parameterName;
 
+	// 内嵌的方法参数
 	@Nullable
 	private volatile MethodParameter nestedMethodParameter;
 
@@ -106,6 +116,8 @@ public class MethodParameter {
 	 * @param parameterIndex the index of the parameter: -1 for the method
 	 * return type; 0 for the first method parameter; 1 for the second method
 	 * parameter, etc.
+	 * parameterIndex：-1为方法返回类型;0为第一个方法参数;1为第二个方法参数，以此类推。
+	 *
 	 */
 	public MethodParameter(Method method, int parameterIndex) {
 		this(method, parameterIndex, 1);
@@ -124,6 +136,7 @@ public class MethodParameter {
 	public MethodParameter(Method method, int parameterIndex, int nestingLevel) {
 		Assert.notNull(method, "Method must not be null");
 		this.executable = method;
+		// 入参参数索引，并验证参数索引是否在范围内。 例如：入参方法有2个参数，而传了索引3，则是不存在的，校验有误
 		this.parameterIndex = validateIndex(method, parameterIndex);
 		this.nestingLevel = nestingLevel;
 	}
@@ -220,6 +233,7 @@ public class MethodParameter {
 	 * Return the wrapped member.
 	 * @return the Method or Constructor as Member
 	 */
+	// TODO .. member了解一下
 	public Member getMember() {
 		return this.executable;
 	}
@@ -355,6 +369,7 @@ public class MethodParameter {
 	/**
 	 * Return a variant of this {@code MethodParameter} which points to the
 	 * same parameter but one nesting level deeper.
+	 * 返回MethodParameter的一个变体，它指向同一个参数，但比MethodParameter深一个嵌套级别
 	 * @since 4.3
 	 */
 	public MethodParameter nested() {
@@ -364,15 +379,19 @@ public class MethodParameter {
 	/**
 	 * Return a variant of this {@code MethodParameter} which points to the
 	 * same parameter but one nesting level deeper.
-	 * @param typeIndex the type index for the new nesting level
+	 * 返回MethodParameter的一个变体，它指向同一个参数，但比MethodParameter深一个嵌套级别
+	 * @param typeIndex the type index for the new nesting level 新嵌套级别的类型索引
 	 * @since 5.2
 	 */
 	public MethodParameter nested(@Nullable Integer typeIndex) {
 		MethodParameter nestedParam = this.nestedMethodParameter;
+		// 如果该实例已经存在内嵌方法参数，并且没有要新嵌套的类型索引，则直接返回
 		if (nestedParam != null && typeIndex == null) {
 			return nestedParam;
 		}
+		// 有新嵌套的类型索引或者没有内嵌方法参数，在当前的下一级内嵌方法参数替换
 		nestedParam = nested(this.nestingLevel + 1, typeIndex);
+		// 没有要嵌套的索引，则直接将获取到的下一级内嵌方法参数赋值，如果有要嵌套的索引，则不赋值，直接返回
 		if (typeIndex == null) {
 			this.nestedMethodParameter = nestedParam;
 		}
@@ -638,6 +657,7 @@ public class MethodParameter {
 					annotationArray.length == this.executable.getParameterCount() - 1) {
 				// Bug in javac in JDK <9: annotation array excludes enclosing instance parameter
 				// for inner classes, so access it with the actual parameter index lowered by 1
+				// jdk < 9的一个bug，注解数组不包含private标识的内部类的参数，所以用实际参数index降低1来访问它
 				index = this.parameterIndex - 1;
 			}
 			paramAnns = (index >= 0 && index < annotationArray.length ?
@@ -823,6 +843,7 @@ public class MethodParameter {
 	 * Create a new MethodParameter for the given parameter descriptor.
 	 * <p>This is a convenience factory method for scenarios where a
 	 * Java 8 {@link Parameter} descriptor is already available.
+	 * 根据参数来构建MethodParameter
 	 * @param parameter the parameter descriptor
 	 * @return the corresponding MethodParameter instance
 	 * @since 5.0

@@ -86,6 +86,7 @@ public class ResolvableType implements Serializable {
 	/**
 	 * {@code ResolvableType} returned when no value is available. {@code NONE} is used
 	 * in preference to {@code null} so that multiple method calls can be safely chained.
+	 * 当没有可用值时返回ResolvableType。NONE优先于null，以便可以安全地串联多个方法调用。
 	 */
 	public static final ResolvableType NONE = new ResolvableType(EmptyType.INSTANCE, null, null, 0);
 
@@ -108,6 +109,7 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * The {@code VariableResolver} to use or {@code null} if no resolver is available.
+	 * 如果没有可用的解析器，则使用{@code VariableResolver}或{@code null}。
 	 */
 	@Nullable
 	private final VariableResolver variableResolver;
@@ -649,6 +651,9 @@ public class ResolvableType implements Serializable {
 	 * nested {@code List}. For convenience, if no indexes are specified the first
 	 * generic is returned.
 	 * <p>If no generic is available at the specified indexes {@link #NONE} is returned.
+	 * 返回一个ResolvableType，表示给定索引的泛型参数。指数是以零为基础的;例如，给定类型Map<Integer, List<String>>，
+	 * getGeneric(0)将访问Integer。嵌套泛型可以通过指定多个索引来访问;例如getGeneric(1,0)将从嵌套的List中访问String。
+	 * 为了方便起见，如果没有指定索引，则返回第一个泛型。如果在指定的索引处没有泛型可用，则返回NONE。
 	 * @param indexes the indexes that refer to the generic parameter
 	 * (may be omitted to return the first generic)
 	 * @return a {@link ResolvableType} for the specified generic, or {@link #NONE}
@@ -659,6 +664,7 @@ public class ResolvableType implements Serializable {
 	 */
 	public ResolvableType getGeneric(@Nullable int... indexes) {
 		ResolvableType[] generics = getGenerics();
+		// 要是没有传入indexes，则返回第一个ResolvableType泛型
 		if (indexes == null || indexes.length == 0) {
 			return (generics.length == 0 ? NONE : generics[0]);
 		}

@@ -28,6 +28,7 @@ import org.springframework.util.comparator.Comparators;
  * A {@link Comparator} that converts values before they are compared.
  * The specified {@link Converter} will be used to convert each value
  * before it passed to the underlying {@code Comparator}.
+ * 比较器，在比较前会根据传入类型先进行转换，后比较
  *
  * @author Phillip Webb
  * @since 3.2
@@ -104,6 +105,7 @@ public class ConvertingComparator<S, T> implements Comparator<S> {
 
 	/**
 	 * Adapts a {@link ConversionService} and <tt>targetType</tt> to a {@link Converter}.
+	 * 将ConversionService和Converter适配为ConversionServiceConverter
 	 */
 	private static class ConversionServiceConverter<S, T> implements Converter<S, T> {
 
