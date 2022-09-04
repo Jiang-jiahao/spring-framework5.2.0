@@ -174,6 +174,8 @@ public final class Property {
 		if (read != null) {
 			Class<?> readType = read.getParameterType();
 			Class<?> writeType = write.getParameterType();
+			// 如果读方法的返回值类型和写方法的第一个参数类型不一样，
+			// 并且读方法的返回值可以转成写方法的第一个参数类型，则返回读方法的返回值类型
 			if (!writeType.equals(readType) && writeType.isAssignableFrom(readType)) {
 				return read;
 			}

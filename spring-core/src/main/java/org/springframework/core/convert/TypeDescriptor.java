@@ -81,6 +81,8 @@ public class TypeDescriptor implements Serializable {
 	public TypeDescriptor(MethodParameter methodParameter) {
 		this.resolvableType = ResolvableType.forMethodParameter(methodParameter);
 		this.type = this.resolvableType.resolve(methodParameter.getNestedParameterType());
+		// 这里判断是返回值的注解还是方法入参的注解，如果是方法返回值的注解则是直接解析，如果是方法入参的注解则需要判断是否是内部类
+		// 如果是内部类还需要解决jdk9以下的一个bug
 		this.annotatedElement = new AnnotatedElementAdapter(methodParameter.getParameterIndex() == -1 ?
 				methodParameter.getMethodAnnotations() : methodParameter.getParameterAnnotations());
 	}
@@ -106,6 +108,7 @@ public class TypeDescriptor implements Serializable {
 		Assert.notNull(property, "Property must not be null");
 		this.resolvableType = ResolvableType.forMethodParameter(property.getMethodParameter());
 		this.type = this.resolvableType.resolve(property.getType());
+		// property会解析读方法、写方法、属性上的所有的注解
 		this.annotatedElement = new AnnotatedElementAdapter(property.getAnnotations());
 	}
 
@@ -129,6 +132,7 @@ public class TypeDescriptor implements Serializable {
 	/**
 	 * Variation of {@link #getType()} that accounts for a primitive type by
 	 * returning its object wrapper type.
+	 * 返回其对象的包装器对象 例如： int -> Integer
 	 * <p>This is useful for conversion service implementations that wish to
 	 * normalize to object-based types and not work with primitive types directly.
 	 */
@@ -210,6 +214,7 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * Return the name of this type: the fully qualified class name.
+	 * 返回类的全限定名
 	 */
 	public String getName() {
 		return ClassUtils.getQualifiedName(getType());
@@ -217,6 +222,7 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * Is this type a primitive type?
+	 * 判断是否原始类型
 	 */
 	public boolean isPrimitive() {
 		return getType().isPrimitive();
@@ -305,6 +311,7 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * Is this type a {@link Collection} type?
+	 * 判断该类型是否可以转成Collection类型，也就是判断是否是集合
 	 */
 	public boolean isCollection() {
 		return Collection.class.isAssignableFrom(getType());
@@ -312,6 +319,7 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * Is this type an array type?
+	 * 判断该类型是否是数组
 	 */
 	public boolean isArray() {
 		return getType().isArray();
@@ -322,6 +330,10 @@ public class TypeDescriptor implements Serializable {
 	 * If this type is a {@code Stream}, returns the stream's component type.
 	 * If this type is a {@link Collection} and it is parameterized, returns the Collection's element type.
 	 * If the Collection is not parameterized, returns {@code null} indicating the element type is not declared.
+	 * 如果此类型是数组，则返回数组的组件类型
+	 * 如果此类型是Stream，则返回Stream的组件类型
+	 * 如果此类型是Collection，并且泛型具体化，则返回集合的元素类型。
+	 * 如果Collection的泛型未具体化，则返回null，指示未声明元素类型
 	 * @return the array component type or Collection element type, or {@code null} if this type is a
 	 * Collection but its element type is not parameterized
 	 * @throws IllegalStateException if this type is not a {@code java.util.Collection} or array type
@@ -362,6 +374,7 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * Is this type a {@link Map} type?
+	 * 判断该类型是否可以转成Map类型，也就是判断是否是k-v类型
 	 */
 	public boolean isMap() {
 		return Map.class.isAssignableFrom(getType());
@@ -640,6 +653,7 @@ public class TypeDescriptor implements Serializable {
 	 */
 	@Nullable
 	public static TypeDescriptor nested(MethodParameter methodParameter, int nestingLevel) {
+		// methodParameter的嵌套等级必须是1，
 		if (methodParameter.getNestingLevel() != 1) {
 			throw new IllegalArgumentException("MethodParameter nesting level must be 1: " +
 					"use the nestingLevel parameter to specify the desired nestingLevel for nested type traversal");
@@ -703,11 +717,14 @@ public class TypeDescriptor implements Serializable {
 	private static TypeDescriptor nested(TypeDescriptor typeDescriptor, int nestingLevel) {
 		ResolvableType nested = typeDescriptor.resolvableType;
 		for (int i = 0; i < nestingLevel; i++) {
+			// 如果是Object类型，则无需进一步解析
 			if (Object.class == nested.getType()) {
 				// Could be a collection type but we don't know about its element type,
 				// so let's just assume there is an element type of type Object...
 			}
 			else {
+				// 进行解析 例如：List<Map<Integer, Enum<?>>>，nestingLevel等级为1时，
+				// 则是Map<Integer, Enum<?>>，为2时则是Enum<?>，3则为null
 				nested = nested.getNested(2);
 			}
 		}

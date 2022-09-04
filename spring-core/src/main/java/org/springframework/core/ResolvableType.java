@@ -47,7 +47,9 @@ import org.springframework.util.StringUtils;
  * {@link #getSuperType() supertypes}, {@link #getInterfaces() interfaces}, and
  * {@link #getGeneric(int...) generic parameters} along with the ability to ultimately
  * {@link #resolve() resolve} to a {@link java.lang.Class}.
- *
+ * 封装Java{@link java.lang.reflect.Type}，提供对{@link #getSuperType() 父类型}、
+ * {@link #getInterfaces() 接口}和{@link #getGeneric(int...) 泛型参数}的访问，以及最终使用
+ * {@link #resolve() 解析}为{@link java.lang.Class}的能力。
  * <p>{@code ResolvableTypes} may be obtained from {@link #forField(Field) fields},
  * {@link #forMethodParameter(Method, int) method parameters},
  * {@link #forMethodReturnType(Method) method returns} or
@@ -98,11 +100,13 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * The underlying Java type being managed.
+	 * 正在管理的基础Java类型
 	 */
 	private final Type type;
 
 	/**
 	 * Optional provider for the type.
+	 * Type的可选提供者
 	 */
 	@Nullable
 	private final TypeProvider typeProvider;
@@ -116,6 +120,7 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * The component type for an array or {@code null} if the type should be deduced.
+	 * 数组的组件类型或{@code null}（如果是推断类型）。
 	 */
 	@Nullable
 	private final ResolvableType componentType;
@@ -214,6 +219,7 @@ public class ResolvableType implements Serializable {
 			return this.resolved;
 		}
 		Type rawType = this.type;
+		// 如果是ParameterizedType类型，，需要获取后返回。例如List<String> 返回就是List
 		if (rawType instanceof ParameterizedType) {
 			rawType = ((ParameterizedType) rawType).getRawType();
 		}
@@ -387,6 +393,7 @@ public class ResolvableType implements Serializable {
 	/**
 	 * Return the ResolvableType representing the component type of the array or
 	 * {@link #NONE} if this type does not represent an array.
+	 * 返回数组的组件类型的ResolvableType，如果此类型不是数组，则返回NONE
 	 * @see #isArray()
 	 */
 	public ResolvableType getComponentType() {
@@ -664,7 +671,7 @@ public class ResolvableType implements Serializable {
 	 */
 	public ResolvableType getGeneric(@Nullable int... indexes) {
 		ResolvableType[] generics = getGenerics();
-		// 要是没有传入indexes，则返回第一个ResolvableType泛型
+		// 要是没有传入indexes，并且generics不是空，则返回第一个泛型
 		if (indexes == null || indexes.length == 0) {
 			return (generics.length == 0 ? NONE : generics[0]);
 		}
@@ -781,6 +788,7 @@ public class ResolvableType implements Serializable {
 	 * @see #resolve(Class)
 	 * @see #resolveGeneric(int...)
 	 * @see #resolveGenerics()
+	 * /获取当前实例解析出的类
 	 */
 	@Nullable
 	public Class<?> resolve() {
@@ -990,6 +998,7 @@ public class ResolvableType implements Serializable {
 	 * @return a {@link ResolvableType} for the specified class
 	 * @see #forClass(Class, Class)
 	 * @see #forClassWithGenerics(Class, Class...)
+	 * 返回指定Class对应的ResolvableType
 	 */
 	public static ResolvableType forClass(@Nullable Class<?> clazz) {
 		return new ResolvableType(clazz);
@@ -1666,6 +1675,7 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * Internal {@link Type} used to represent an empty value.
+	 * 返回一个单例的空Type
 	 */
 	@SuppressWarnings("serial")
 	static class EmptyType implements Type, Serializable {

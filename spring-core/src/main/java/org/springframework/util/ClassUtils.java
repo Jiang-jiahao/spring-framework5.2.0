@@ -1019,6 +1019,7 @@ public abstract class ClassUtils {
 	/**
 	 * Return the qualified name of the given class: usually simply
 	 * the class name, but component type class name + "[]" for arrays.
+	 * 返回给定类的全限定名：通常简单类名，但数组的类型类名要加“[]”
 	 * @param clazz the class
 	 * @return the qualified name of the class
 	 */

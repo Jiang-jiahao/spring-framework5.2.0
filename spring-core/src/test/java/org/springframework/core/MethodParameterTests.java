@@ -184,9 +184,9 @@ class MethodParameterTests {
 	void testNested() throws Exception {
 		Method method = getClass().getMethod("testNestedMethod");
 		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
-//		MethodParameter m2 = m1.nested();
-		MethodParameter m3 = m1.nested(-1);
-		System.out.println(m3);
+		MethodParameter m2 = m1.nested();
+		Class<?> nestedParameterType = m2.getNestedParameterType();
+		System.out.println(nestedParameterType);
 	}
 
 	@Test

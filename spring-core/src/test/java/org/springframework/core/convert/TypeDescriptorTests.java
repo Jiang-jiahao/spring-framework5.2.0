@@ -171,6 +171,7 @@ class TypeDescriptorTests {
 	@Test
 	void getAnnotationsReturnsClonedArray() throws Exception {
 		TypeDescriptor t = new TypeDescriptor(new MethodParameter(getClass().getMethod("testAnnotatedMethod", String.class), 0));
+		// 这里getAnnotations方法返回的注解数组是克隆的，所以在这里修改不会改变原来的注解数组
 		t.getAnnotations()[0] = null;
 		assertThat(t.getAnnotations()[0]).isNotNull();
 	}
@@ -251,7 +252,7 @@ class TypeDescriptorTests {
 	void getAnnotationOnMethodThatIsMetaMetaAnnotated() throws Exception {
 		assertAnnotationFoundOnMethod(MethodAnnotation1.class, "methodWithComposedComposedAnnotation");
 	}
-
+	// 不管是继承了几层的注解，都可以按父注解获取到
 	private void assertAnnotationFoundOnMethod(Class<? extends Annotation> annotationType, String methodName) throws Exception {
 		TypeDescriptor typeDescriptor = new TypeDescriptor(new MethodParameter(getClass().getMethod(methodName), -1));
 		assertThat(typeDescriptor.getAnnotation(annotationType)).as("Should have found @" + annotationType.getSimpleName() + " on " + methodName + ".").isNotNull();
@@ -417,6 +418,7 @@ class TypeDescriptorTests {
 
 	@Test
 	void nestedTooManyLevels() throws Exception {
+		// 当嵌套等级比实际的嵌套多的时候，会返回null
 		TypeDescriptor t1 = TypeDescriptor.nested(new MethodParameter(getClass().getMethod("test4", List.class), 0), 3);
 		assertThat((Object) t1).isNull();
 	}
@@ -455,6 +457,7 @@ class TypeDescriptorTests {
 		assertThat(t1.getType()).isEqualTo(String.class);
 	}
 
+	// **
 	@Test
 	void collection() {
 		TypeDescriptor desc = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Integer.class));
@@ -487,6 +490,8 @@ class TypeDescriptorTests {
 		assertThat(desc.isMap()).isFalse();
 	}
 
+
+	// **
 	@Test
 	void map() {
 		TypeDescriptor desc = TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Integer.class));
@@ -521,14 +526,17 @@ class TypeDescriptorTests {
 		assertThat(desc.getMapValueTypeDescriptor().getMapValueTypeDescriptor().getType()).isEqualTo(Integer.class);
 	}
 
+	// **
 	@Test
 	void narrow() {
 		TypeDescriptor desc = TypeDescriptor.valueOf(Number.class);
 		Integer value = Integer.valueOf(3);
+		// 将类型描述符的类型缩小 Number -> Integer
 		desc = desc.narrow(value);
 		assertThat(desc.getType()).isEqualTo(Integer.class);
 	}
 
+	// **
 	@Test
 	void elementType() {
 		TypeDescriptor desc = TypeDescriptor.valueOf(List.class);
@@ -547,6 +555,7 @@ class TypeDescriptorTests {
 		assertThat(desc.getAnnotation(FieldAnnotation.class)).isNotNull();
 	}
 
+	// **
 	@Test
 	void mapKeyType() {
 		TypeDescriptor desc = TypeDescriptor.valueOf(Map.class);
@@ -620,6 +629,7 @@ class TypeDescriptorTests {
 		assertThat(t18).isNotEqualTo(t17);
 	}
 
+	// **
 	@Test
 	void isAssignableTypes() {
 		assertThat(TypeDescriptor.valueOf(Integer.class).isAssignableTo(TypeDescriptor.valueOf(Number.class))).isTrue();
@@ -662,11 +672,13 @@ class TypeDescriptorTests {
 		assertThat(td.getElementTypeDescriptor().getElementTypeDescriptor().getElementTypeDescriptor().getType()).isEqualTo(Integer.class);
 	}
 
+	// **
 	@Test
 	void upCast() throws Exception {
 		Property property = new Property(getClass(), getClass().getMethod("getProperty"),
 				getClass().getMethod("setProperty", Map.class));
 		TypeDescriptor typeDescriptor = new TypeDescriptor(property);
+		// upcast转成指定的父类型
 		TypeDescriptor upCast = typeDescriptor.upcast(Object.class);
 		assertThat(upCast.getAnnotation(MethodAnnotation1.class) != null).isTrue();
 	}
@@ -681,6 +693,7 @@ class TypeDescriptorTests {
 			.withMessage("interface java.util.Map is not assignable to interface java.util.Collection");
 	}
 
+	// **
 	@Test
 	void elementTypeForCollectionSubclass() throws Exception {
 		@SuppressWarnings("serial")
@@ -691,6 +704,7 @@ class TypeDescriptorTests {
 		assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.forObject(new CustomSet()).getElementTypeDescriptor());
 	}
 
+	// **
 	@Test
 	void elementTypeForMapSubclass() throws Exception {
 		@SuppressWarnings("serial")
@@ -703,6 +717,7 @@ class TypeDescriptorTests {
 		assertThat(TypeDescriptor.valueOf(Integer.class)).isEqualTo(TypeDescriptor.forObject(new CustomMap()).getMapValueTypeDescriptor());
 	}
 
+	// **
 	@Test
 	void createMapArray() throws Exception {
 		TypeDescriptor mapType = TypeDescriptor.map(
@@ -723,6 +738,7 @@ class TypeDescriptorTests {
 		assertThat((Object) TypeDescriptor.array(null)).isNull();
 	}
 
+	// **
 	@Test
 	void serializable() throws Exception {
 		TypeDescriptor typeDescriptor = TypeDescriptor.forObject("");
@@ -748,6 +764,7 @@ class TypeDescriptorTests {
 		assertThat(typeDescriptor.getMapValueTypeDescriptor()).isNull();
 	}
 
+	// **
 	@Test
 	void getSource() throws Exception {
 		Field field = getClass().getField("fieldScalar");
