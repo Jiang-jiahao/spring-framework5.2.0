@@ -106,37 +106,42 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * Optional provider for the type.
-	 * Type的可选提供者
+	 * 底层类型的提供者，静态工厂方法中如果未提供类型，则根据该类型提供者获取类型
 	 */
 	@Nullable
 	private final TypeProvider typeProvider;
 
 	/**
 	 * The {@code VariableResolver} to use or {@code null} if no resolver is available.
-	 * 如果没有可用的解析器，则使用{@code VariableResolver}或{@code null}。
+	 *  用于将 TypeVariable 解析为 ResolvableType 的解析器
 	 */
 	@Nullable
 	private final VariableResolver variableResolver;
 
 	/**
 	 * The component type for an array or {@code null} if the type should be deduced.
-	 * 数组的组件类型或{@code null}（如果是推断类型）。
+	 * 如果底层类型为泛型数组，则保存数组的元素类型
 	 */
 	@Nullable
 	private final ResolvableType componentType;
 
+	// 缓存的哈希码
 	@Nullable
 	private final Integer hash;
 
+	// type解析后的 Class
 	@Nullable
 	private Class<?> resolved;
 
+	// 父类型
 	@Nullable
 	private volatile ResolvableType superType;
 
+	// 当前类型实现的接口
 	@Nullable
 	private volatile ResolvableType[] interfaces;
 
+	// 当前类型的泛型参数
 	@Nullable
 	private volatile ResolvableType[] generics;
 
@@ -219,7 +224,7 @@ public class ResolvableType implements Serializable {
 			return this.resolved;
 		}
 		Type rawType = this.type;
-		// 如果是ParameterizedType类型，，需要获取后返回。例如List<String> 返回就是List
+		// 如果是ParameterizedType类型，需要获取后返回。例如List<String> 返回就是List
 		if (rawType instanceof ParameterizedType) {
 			rawType = ((ParameterizedType) rawType).getRawType();
 		}
@@ -393,7 +398,7 @@ public class ResolvableType implements Serializable {
 	/**
 	 * Return the ResolvableType representing the component type of the array or
 	 * {@link #NONE} if this type does not represent an array.
-	 * 返回数组的组件类型的ResolvableType，如果此类型不是数组，则返回NONE
+	 * 返回数组的类型的ResolvableType，如果此类型不是数组，则返回NONE
 	 * @see #isArray()
 	 */
 	public ResolvableType getComponentType() {
@@ -403,11 +408,14 @@ public class ResolvableType implements Serializable {
 		if (this.componentType != null) {
 			return this.componentType;
 		}
+		// 这边考虑到类似List[]这样情况的数组
 		if (this.type instanceof Class) {
 			Class<?> componentType = ((Class<?>) this.type).getComponentType();
 			return forType(componentType, this.variableResolver);
 		}
+		// 这边考虑到类似List<String>[]这样带泛型情况的数组
 		if (this.type instanceof GenericArrayType) {
+			// 获取数组的类型对应的class 例如：String[] -> Class<String>
 			return forType(((GenericArrayType) this.type).getGenericComponentType(), this.variableResolver);
 		}
 		return resolveType().getComponentType();
@@ -818,6 +826,7 @@ public class ResolvableType implements Serializable {
 		if (this.type instanceof Class) {
 			return (Class<?>) this.type;
 		}
+		// 如果解析类型为泛型数组
 		if (this.type instanceof GenericArrayType) {
 			Class<?> resolvedComponent = getComponentType().resolve();
 			return (resolvedComponent != null ? Array.newInstance(resolvedComponent, 0).getClass() : null);
@@ -1410,7 +1419,7 @@ public class ResolvableType implements Serializable {
 	 */
 	static ResolvableType forType(
 			@Nullable Type type, @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
-
+		// 如果类型是空，则尝试从类型提供器获取
 		if (type == null && typeProvider != null) {
 			type = SerializableTypeWrapper.forTypeProvider(typeProvider);
 		}
@@ -1420,6 +1429,7 @@ public class ResolvableType implements Serializable {
 
 		// For simple Class references, build the wrapper right away -
 		// no expensive resolution necessary, so not worth caching...
+		// Class 类型直接创建返回
 		if (type instanceof Class) {
 			return new ResolvableType(type, typeProvider, variableResolver, (ResolvableType) null);
 		}
@@ -1427,6 +1437,7 @@ public class ResolvableType implements Serializable {
 		// Purge empty entries on access since we don't have a clean-up thread or the like.
 		cache.purgeUnreferencedEntries();
 
+		// 其他类型实例化后进行缓存
 		// Check the cache - we may have a ResolvableType which has been resolved before...
 		ResolvableType resultType = new ResolvableType(type, typeProvider, variableResolver);
 		ResolvableType cachedType = cache.get(resultType);
